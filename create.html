@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>创建题库 - KAAM</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <nav class="site-nav" aria-label="主导航">
+          <a class="brand" href="index.html"><span class="brand-mark">K</span><span>KAAM</span></a>
+          <div class="nav-links">
+            <a href="create.html" aria-current="page">出题</a>
+            <a href="answer.html">答题</a>
+            <a href="manage.html">管理</a>
+            <a href="help.html">帮助</a>
+          </div>
+        </nav>
+      </header>
+
+      <main class="main">
+        <section class="page-title">
+          <h1>创建题库</h1>
+          <p>先完成基础信息和题目内容，提交后将生成分享码。AI 功能当前保留接口并提供本地演示结果。</p>
+        </section>
+
+        <form id="questionBankForm" class="layout-grid">
+          <div class="stack">
+            <section class="card">
+              <div class="card-header">
+                <h2>基础信息</h2>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="creatorName">出题人昵称</label>
+                  <input id="creatorName" name="creatorName" maxlength="24" required>
+                </div>
+                <div class="field">
+                  <label for="creatorPassword">管理口令</label>
+                  <input id="creatorPassword" name="creatorPassword" type="password" minlength="4" required>
+                </div>
+                <div class="field full">
+                  <label for="bankTitle">题库标题</label>
+                  <input id="bankTitle" name="bankTitle" maxlength="60" required placeholder="比如：你真的了解我吗">
+                </div>
+                <div class="field full">
+                  <label for="bankDescription">题库描述</label>
+                  <textarea id="bankDescription" name="bankDescription" maxlength="240" placeholder="可选"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-header">
+                <h2>题目列表</h2>
+                <button class="button secondary" type="button" id="addQuestionButton">新增题目</button>
+              </div>
+              <div id="questionList" class="stack"></div>
+            </section>
+
+            <section class="card">
+              <div class="card-header">
+                <h2>称号规则</h2>
+                <button class="button secondary" type="button" id="addRankRuleButton">新增规则</button>
+              </div>
+              <div id="rankRuleList" class="stack"></div>
+            </section>
+          </div>
+
+          <aside class="stack">
+            <section class="card">
+              <h2>AI 辅助</h2>
+              <div class="ai-grid">
+                <div class="field">
+                  <label for="aiTopic">主题</label>
+                  <input id="aiTopic" maxlength="40" placeholder="如：校园生活">
+                </div>
+                <div class="field">
+                  <label for="aiCount">数量</label>
+                  <input id="aiCount" type="number" min="1" max="10" value="3">
+                </div>
+                <button class="button secondary" type="button" id="generateAiButton">生成题目</button>
+              </div>
+              <p class="hint">正式环境将通过 `aiProxy` 云函数调用模型。</p>
+            </section>
+
+            <section class="card">
+              <h2>提交与分享</h2>
+              <p class="hint">创建后会调用 `createQuestionBank`。本地模式会保存到浏览器 LocalStorage。</p>
+              <button class="button" type="submit">保存并生成分享码</button>
+              <div id="createStatus" class="status" role="status"></div>
+              <div id="shareBox" class="share-box">
+                <div class="meta">分享码</div>
+                <div id="shareCode" class="share-code"></div>
+                <a id="shareLink" class="button secondary" href="answer.html">打开答题页</a>
+                <button id="copyShareButton" class="button" type="button">复制分享链接</button>
+              </div>
+            </section>
+          </aside>
+        </form>
+      </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/create.js"></script>
+  </body>
+</html>

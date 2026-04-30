@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>题库管理 - KAAM</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <nav class="site-nav" aria-label="主导航">
+          <a class="brand" href="index.html"><span class="brand-mark">K</span><span>KAAM</span></a>
+          <div class="nav-links">
+            <a href="create.html">出题</a>
+            <a href="answer.html">答题</a>
+            <a href="manage.html" aria-current="page">管理</a>
+            <a href="help.html">帮助</a>
+          </div>
+        </nav>
+      </header>
+
+      <main class="main">
+        <section class="page-title">
+          <h1>题库管理</h1>
+          <p>输入分享码与管理口令后，可查看题库摘要或执行软删除。</p>
+        </section>
+
+        <section class="card">
+          <form id="manageForm" class="form-grid">
+            <div class="field">
+              <label for="manageShareCode">分享码</label>
+              <input id="manageShareCode" name="shareCode" maxlength="12" required>
+            </div>
+            <div class="field">
+              <label for="managePassword">管理口令</label>
+              <input id="managePassword" name="creatorPassword" type="password" required>
+            </div>
+            <div class="field full actions">
+              <button class="button" type="submit">查看题库</button>
+              <button id="deleteBankButton" class="button danger" type="button">删除题库</button>
+            </div>
+          </form>
+          <div id="manageStatus" class="status" role="status"></div>
+        </section>
+
+        <section id="manageResult" class="card" hidden></section>
+      </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/manage.js"></script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>使用说明 - KAAM</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <nav class="site-nav" aria-label="主导航">
+          <a class="brand" href="index.html"><span class="brand-mark">K</span><span>KAAM</span></a>
+          <div class="nav-links">
+            <a href="create.html">出题</a>
+            <a href="answer.html">答题</a>
+            <a href="manage.html">管理</a>
+            <a href="help.html" aria-current="page">帮助</a>
+          </div>
+        </nav>
+      </header>
+
+      <main class="main">
+        <section class="page-title">
+          <h1>使用说明</h1>
+          <p>本页面记录第一版前端的使用流程与后端接入点。</p>
+        </section>
+
+        <div class="stack">
+          <section class="card">
+            <h2>出题流程</h2>
+            <p>进入出题页，填写基础信息，添加题目和称号规则，保存后获得分享码与答题链接。</p>
+          </section>
+          <section class="card">
+            <h2>答题流程</h2>
+            <p>进入答题页，填写分享码和昵称，完成题目后提交。正式环境中评分由 `submitAnswer` 云函数完成。</p>
+          </section>
+          <section class="card">
+            <h2>后端接口</h2>
+            <div class="pill-list">
+              <span class="pill">createQuestionBank</span>
+              <span class="pill">getQuestionBank</span>
+              <span class="pill">submitAnswer</span>
+              <span class="pill">manageQuestionBank</span>
+              <span class="pill">aiProxy</span>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

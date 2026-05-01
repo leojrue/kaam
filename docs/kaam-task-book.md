@@ -103,4 +103,6 @@ KAAM 是一个面向轻社交、活动互动、趣味测试与知识问答场景
 
 ## 前端当前实现策略
 
-第一版前端提供完整页面与交互骨架，并集中预留后端接口。正式接入 CloudBase 前，页面默认使用本地 LocalStorage mock 数据，方便离线开发和演示。切换到云函数时，只需在 `js/common.js` 中开启远程 API 并配置 CloudBase 调用逻辑。
+第一版前端提供完整页面与交互骨架，并集中预留后端接口。当前项目后端方向已调整为传统云服务器部署，目标方案为 Python FastAPI + MySQL + Nginx。页面默认使用本地 LocalStorage mock 数据，方便离线开发和演示。切换到真实后端时，只需在 `js/common.js` 中将 `API_MODE` 从 `mock` 改为 `remote`，并通过 `/api` 访问后端接口。
+
+新版传统服务器任务书见：`docs/kaam-traditional-server-task-book.md`。

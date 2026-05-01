@@ -6,6 +6,11 @@
   };
 
   const API_MODE = "mock";
+  const API_BASE_URL = "/api";
+  const HTTP_METHODS = {
+    get: "GET",
+    post: "POST"
+  };
 
   const defaultRankRules = [
     { minPercent: 90, maxPercent: 100, name: "满分大神" },
@@ -92,19 +97,44 @@
     }
   }
 
-  async function callCloudFunction(functionName, payload) {
-    if (API_MODE === "mock") {
-      throw new Error(`CloudBase function ${functionName} is not configured`);
+  async function requestApi(path, options = {}) {
+    const method = options.method || HTTP_METHODS.get;
+    const payload = options.payload;
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: method === HTTP_METHODS.get ? undefined : JSON.stringify(payload || {})
+    });
+
+    let responseBody = null;
+    try {
+      responseBody = await response.json();
+    } catch (error) {
+      responseBody = null;
     }
-    return payload;
+
+    if (!response.ok || responseBody?.success === false) {
+      const message = responseBody?.message || responseBody?.error || "服务请求失败";
+      throw new Error(message);
+    }
+
+    return responseBody && Object.prototype.hasOwnProperty.call(responseBody, "data")
+      ? responseBody.data
+      : responseBody;
   }
 
   const KaamApi = {
+    apiBaseUrl: API_BASE_URL,
     defaultRankRules,
 
     async createQuestionBank(payload) {
       if (API_MODE !== "mock") {
-        return callCloudFunction("createQuestionBank", payload);
+        return requestApi("/question-banks", {
+          method: HTTP_METHODS.post,
+          payload
+        });
       }
 
       const creatorName = String(payload.creatorName || "").trim();
@@ -165,7 +195,7 @@
 
     async getQuestionBank(shareCode) {
       if (API_MODE !== "mock") {
-        return callCloudFunction("getQuestionBank", { shareCode });
+        return requestApi(`/question-banks/${encodeURIComponent(normalizeShareCode(shareCode))}`);
       }
 
       const normalizedCode = normalizeShareCode(shareCode);
@@ -184,7 +214,10 @@
 
     async submitAnswer(payload) {
       if (API_MODE !== "mock") {
-        return callCloudFunction("submitAnswer", payload);
+        return requestApi("/answers/submit", {
+          method: HTTP_METHODS.post,
+          payload
+        });
       }
 
       const normalizedCode = normalizeShareCode(payload.shareCode);
@@ -247,7 +280,10 @@
 
     async manageQuestionBank(payload) {
       if (API_MODE !== "mock") {
-        return callCloudFunction("manageQuestionBank", payload);
+        return requestApi("/question-banks/manage", {
+          method: HTTP_METHODS.post,
+          payload
+        });
       }
 
       const normalizedCode = normalizeShareCode(payload.shareCode);
@@ -279,7 +315,10 @@
 
     async aiProxy(payload) {
       if (API_MODE !== "mock") {
-        return callCloudFunction("aiProxy", payload);
+        return requestApi("/ai/generate", {
+          method: HTTP_METHODS.post,
+          payload
+        });
       }
 
       const topic = String(payload.topic || payload.title || "KAAM").trim();

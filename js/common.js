@@ -5,7 +5,7 @@
     latestResult: "kaam.latestResult"
   };
 
-  const API_MODE = "mock";
+  const API_MODE = "remote";
   const API_BASE_URL = "/api";
   const HTTP_METHODS = {
     get: "GET",
@@ -214,10 +214,12 @@
 
     async submitAnswer(payload) {
       if (API_MODE !== "mock") {
-        return requestApi("/answers/submit", {
+        const result = await requestApi("/answers/submit", {
           method: HTTP_METHODS.post,
           payload
         });
+        writeJson(STORAGE_KEYS.latestResult, result);
+        return result;
       }
 
       const normalizedCode = normalizeShareCode(payload.shareCode);

@@ -5,11 +5,12 @@
     latestResult: "kaam.latestResult",
     currentUser: "kaam.currentUser",
     deviceId: "kaam.deviceId",
-    latestCreatedBank: "kaam.latestCreatedBank"
+    latestCreatedBank: "kaam.latestCreatedBank",
+    pendingAuthRedirect: "kaam.pendingAuthRedirect"
   };
 
   const API_MODE = "remote";
-  const API_BASE_URL = "/api";
+  const API_BASE_URL = location.protocol === "file:" ? "http://127.0.0.1:8000/api" : "/api";
   const HTTP_METHODS = {
     get: "GET",
     post: "POST"
@@ -139,6 +140,11 @@
     setCurrentUser(user) {
       writeJson(STORAGE_KEYS.currentUser, user);
       window.dispatchEvent(new CustomEvent("kaam:user-change", { detail: user }));
+      const pendingRedirect = localStorage.getItem(STORAGE_KEYS.pendingAuthRedirect);
+      if (pendingRedirect) {
+        localStorage.removeItem(STORAGE_KEYS.pendingAuthRedirect);
+        location.href = pendingRedirect;
+      }
     },
 
     logout() {
@@ -153,6 +159,11 @@
         return null;
       }
       return user;
+    },
+
+    openLoginForRedirect(targetUrl) {
+      localStorage.setItem(STORAGE_KEYS.pendingAuthRedirect, targetUrl);
+      window.dispatchEvent(new CustomEvent("kaam:open-login"));
     },
 
     getDeviceId() {
@@ -453,6 +464,10 @@
 
     function closeModal() {
       modal.hidden = true;
+      localStorage.removeItem(STORAGE_KEYS.pendingAuthRedirect);
+      if (document.body.dataset.requiresAuth === "true" && !KaamApi.getCurrentUser()) {
+        location.href = "index.html";
+      }
     }
 
     modal.querySelector(".auth-close").addEventListener("click", closeModal);
@@ -495,7 +510,7 @@
       authSlot = document.createElement("div");
       authSlot.id = "authSlot";
       authSlot.className = "auth-slot";
-      nav.prepend(authSlot);
+      nav.appendChild(authSlot);
     }
     const user = KaamApi.getCurrentUser();
     if (!user) {
@@ -516,8 +531,10 @@
       event.preventDefault();
       menu.hidden = !menu.hidden;
     });
-    avatarButton.addEventListener("click", () => {
-      menu.hidden = !menu.hidden;
+    document.addEventListener("click", (event) => {
+      if (!authSlot.contains(event.target)) {
+        menu.hidden = true;
+      }
     });
     menu.querySelector("button").addEventListener("click", () => {
       KaamApi.logout();
@@ -528,9 +545,43 @@
     });
   }
 
+  function bindProtectedLinks() {
+    document.querySelectorAll("a[href='create.html'], a[href='manage.html']").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        if (KaamApi.getCurrentUser()) return;
+        event.preventDefault();
+        KaamApi.openLoginForRedirect(link.getAttribute("href"));
+      });
+    });
+  }
+
+  function setProtectedPageVisible(isVisible) {
+    if (document.body.dataset.requiresAuth !== "true") return;
+    document.body.classList.toggle("auth-required-locked", !isVisible);
+    document.querySelectorAll("main.main").forEach((mainElement) => {
+      mainElement.hidden = !isVisible;
+    });
+  }
+
+  function protectCurrentPage() {
+    if (document.body.dataset.requiresAuth !== "true") return;
+    if (KaamApi.getCurrentUser()) {
+      setProtectedPageVisible(true);
+      return;
+    }
+    setProtectedPageVisible(false);
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+    KaamApi.openLoginForRedirect(currentPage);
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     createAuthModal();
     renderAuthButton();
-    window.addEventListener("kaam:user-change", renderAuthButton);
+    bindProtectedLinks();
+    protectCurrentPage();
+    window.addEventListener("kaam:user-change", (event) => {
+      renderAuthButton();
+      setProtectedPageVisible(Boolean(event.detail));
+    });
   });
 })();

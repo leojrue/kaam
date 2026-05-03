@@ -1,5 +1,6 @@
 (function () {
   const enterAnswerForm = document.querySelector("#enterAnswerForm");
+  const enterAnswerSection = document.querySelector("#enterAnswerSection");
   const answerForm = document.querySelector("#answerForm");
   const answerStatusElement = document.querySelector("#answerStatus");
   const shareCodeInput = document.querySelector("#shareCodeInput");
@@ -8,6 +9,7 @@
   const bankDescriptionElement = document.querySelector("#bankDescription");
   const questionProgressElement = document.querySelector("#questionProgress");
   const answerQuestionListElement = document.querySelector("#answerQuestionList");
+  const answerActionsElement = document.querySelector("#answerActions");
 
   let activeBank = null;
 
@@ -17,6 +19,7 @@
     bankDescriptionElement.textContent = bank.description || "暂无题库描述";
     questionProgressElement.textContent = `${bank.questionList.length} 题 / ${bank.totalScore} 分`;
     answerQuestionListElement.innerHTML = "";
+    answerActionsElement.innerHTML = "";
 
     bank.questionList.forEach((question, index) => {
       const card = KaamTools.createElement("article", "question-card");
@@ -42,6 +45,12 @@
     });
 
     answerForm.hidden = false;
+    const submitButton = KaamTools.createElement("button", "button", "提交答案");
+    submitButton.type = "submit";
+    answerActionsElement.appendChild(submitButton);
+    if (enterAnswerSection) {
+      enterAnswerSection.hidden = true;
+    }
   }
 
   async function loadBankByCode(shareCode) {
@@ -90,5 +99,12 @@
   const initialShareCode = KaamTools.getQueryParam("code");
   if (initialShareCode) {
     shareCodeInput.value = KaamApi.normalizeShareCode(initialShareCode);
+    loadBankByCode(initialShareCode).catch((error) => {
+      answerForm.hidden = true;
+      if (enterAnswerSection) {
+        enterAnswerSection.hidden = false;
+      }
+      KaamTools.setStatus(answerStatusElement, error.message, "error");
+    });
   }
 })();

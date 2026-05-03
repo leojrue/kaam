@@ -12,8 +12,9 @@
         <nav class="site-nav" aria-label="主导航">
           <a class="brand" href="index.html"><span class="brand-mark">K</span><span>KAAM</span></a>
           <div class="nav-links">
-            <a href="create.html">出题</a>
-            <a href="answer.html" aria-current="page">答题</a>
+            <a href="index.html">首页</a>
+            <a href="create.html">我要出题</a>
+            <a href="answer.html" aria-current="page">我要答题</a>
             <a href="manage.html">管理</a>
             <a href="help.html">帮助</a>
           </div>
@@ -22,11 +23,12 @@
 
       <main class="main">
         <section class="page-title">
+          <span class="eyebrow">答题入口</span>
           <h1>开始答题</h1>
-          <p>输入分享码后读取题库公开信息，提交答案时会调用评分接口。</p>
+          <p>输入分享码和昵称，进入出题人为你准备的问答挑战。</p>
         </section>
 
-        <section class="card">
+        <section id="enterAnswerSection" class="card">
           <form id="enterAnswerForm" class="form-grid">
             <div class="field">
               <label for="shareCodeInput">分享码</label>
@@ -54,9 +56,7 @@
             </div>
           </section>
           <div id="answerQuestionList" class="stack"></div>
-          <div class="actions">
-            <button class="button" type="submit">提交答案</button>
-          </div>
+          <div id="answerActions" class="actions"></div>
         </form>
       </main>
     </div>

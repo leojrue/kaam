@@ -167,9 +167,15 @@
         topic: aiTopicInput.value,
         count: aiCountInput.value
       });
-      questionList = questionList.concat(response.questionList);
+      const generatedQuestions = response.questionList.map((question) => ({
+        ...question,
+        analysis: String(question.analysis || "").includes("接口暂未接入")
+          ? "你可以根据实际活动内容继续调整这道题。"
+          : question.analysis
+      }));
+      questionList = questionList.concat(generatedQuestions);
       renderQuestions();
-      KaamTools.setStatus(createStatusElement, "AI 演示题目已添加。", "success");
+      KaamTools.setStatus(createStatusElement, "题目草稿已添加，可继续编辑。", "success");
     } catch (error) {
       KaamTools.setStatus(createStatusElement, error.message, "error");
     }

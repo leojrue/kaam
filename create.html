@@ -12,8 +12,9 @@
         <nav class="site-nav" aria-label="主导航">
           <a class="brand" href="index.html"><span class="brand-mark">K</span><span>KAAM</span></a>
           <div class="nav-links">
-            <a href="create.html" aria-current="page">出题</a>
-            <a href="answer.html">答题</a>
+            <a href="index.html">首页</a>
+            <a href="create.html" aria-current="page">我要出题</a>
+            <a href="answer.html">我要答题</a>
             <a href="manage.html">管理</a>
             <a href="help.html">帮助</a>
           </div>
@@ -22,8 +23,9 @@
 
       <main class="main">
         <section class="page-title">
+          <span class="eyebrow">创建中心</span>
           <h1>创建题库</h1>
-          <p>先完成基础信息和题目内容，提交后将生成分享码。AI 功能当前保留接口并提供本地演示结果。</p>
+          <p>为一次聚会、一场课堂互动或一个社团活动准备专属问答。完成题目后即可生成分享码，邀请大家参与。</p>
         </section>
 
         <form id="questionBankForm" class="layout-grid">
@@ -38,7 +40,7 @@
                   <input id="creatorName" name="creatorName" maxlength="24" required>
                 </div>
                 <div class="field">
-                  <label for="creatorPassword">管理口令</label>
+                  <label for="creatorPassword">管理题库密码</label>
                   <input id="creatorPassword" name="creatorPassword" type="password" minlength="4" required>
                 </div>
                 <div class="field full">
@@ -83,19 +85,19 @@
                 </div>
                 <button class="button secondary" type="button" id="generateAiButton">生成题目</button>
               </div>
-              <p class="hint">正式环境将通过 `aiProxy` 云函数调用模型。</p>
+              <p class="hint">输入主题后可快速生成题目草稿，你仍可继续编辑每一道题。</p>
             </section>
 
             <section class="card">
               <h2>提交与分享</h2>
-              <p class="hint">创建后会调用 `createQuestionBank`。本地模式会保存到浏览器 LocalStorage。</p>
+              <p class="hint">保存后会生成唯一分享码，可复制链接邀请他人答题。</p>
               <button class="button" type="submit">保存并生成分享码</button>
               <div id="createStatus" class="status" role="status"></div>
               <div id="shareBox" class="share-box">
                 <div class="meta">分享码</div>
                 <div id="shareCode" class="share-code"></div>
-                <a id="shareLink" class="button secondary" href="answer.html">打开答题页</a>
-                <button id="copyShareButton" class="button" type="button">复制分享链接</button>
+                <a id="shareLink" class="button secondary" href="answer.html">打开答题链接</a>
+                <button id="copyShareButton" class="button" type="button">复制答题链接</button>
               </div>
             </section>
           </aside>

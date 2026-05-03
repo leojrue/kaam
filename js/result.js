@@ -36,7 +36,6 @@
       `).join("")}
     </div>
     <div class="actions">
-      <a class="button" href="answer.html?code=${result.shareCode}">再答一次</a>
       <a class="button secondary" href="index.html">返回首页</a>
     </div>
   `;

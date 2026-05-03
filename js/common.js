@@ -143,7 +143,7 @@
       const rankRules = payload.rankRules && payload.rankRules.length ? payload.rankRules : defaultRankRules;
 
       if (!creatorName) throw new Error("请填写出题人昵称");
-      if (creatorPassword.length < 4) throw new Error("管理口令至少 4 位");
+      if (creatorPassword.length < 4) throw new Error("管理题库密码至少 4 位");
       if (!payload.title.trim()) throw new Error("请填写题库标题");
       if (!questionList.length) throw new Error("请至少添加 1 道题");
       questionList.forEach(validateQuestion);
@@ -293,7 +293,7 @@
       const bankIndex = questionBanks.findIndex((item) => item.share_code === normalizedCode);
       if (bankIndex < 0) throw new Error("未找到对应题库");
       if (questionBanks[bankIndex].creator_pwd_hash !== String(payload.creatorPassword || "")) {
-        throw new Error("管理口令不正确");
+        throw new Error("管理题库密码不正确");
       }
 
       if (payload.action === "delete") {
@@ -331,7 +331,7 @@
         option: ["A. 选项一", "B. 选项二", "C. 选项三", "D. 选项四"],
         answer: "A",
         score: 5,
-        analysis: "这是本地演示生成的解析，正式环境由 AI 云函数返回。"
+        analysis: "你可以根据实际活动内容继续调整这道题。"
       }));
       return { questionList };
     },

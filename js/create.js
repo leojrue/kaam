@@ -28,6 +28,25 @@
     createdBankView.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function showCreateForm() {
+    lastShareUrl = "";
+    document.body.classList.remove("create-share-mode");
+    createdBankView.hidden = true;
+    questionBankForm.hidden = false;
+  }
+
+  async function showExistingBankIfNeeded(user) {
+    if (!user) return false;
+    const existingBank = await KaamApi.getCurrentUserQuestionBank(user.userId);
+    if (!existingBank) {
+      KaamApi.clearLatestCreatedBank();
+      return false;
+    }
+    KaamApi.setLatestCreatedBank(existingBank);
+    showCreatedBankView(existingBank);
+    return true;
+  }
+
   function createEmptyQuestion() {
     return {
       id: `q_${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -238,12 +257,20 @@
     questionBankForm.hidden = true;
   }
   window.addEventListener("kaam:user-change", (event) => {
-    if (event.detail) {
+    if (!event.detail) return;
+    showExistingBankIfNeeded(event.detail).then((hasExistingBank) => {
+      if (!hasExistingBank) showCreateForm();
+    }).catch((error) => {
       questionBankForm.hidden = false;
-    }
+      KaamTools.setStatus(createStatusElement, error.message, "error");
+    });
   });
-  if (currentUser && latestCreatedBank) {
-    showCreatedBankView(latestCreatedBank);
+  if (currentUser) {
+    showExistingBankIfNeeded(currentUser).then((hasExistingBank) => {
+      if (!hasExistingBank) showCreateForm();
+    }).catch((error) => {
+      KaamTools.setStatus(createStatusElement, error.message, "error");
+    });
   }
 
   questionList.push(createEmptyQuestion());

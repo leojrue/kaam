@@ -183,6 +183,10 @@
       writeJson(STORAGE_KEYS.latestCreatedBank, bank);
     },
 
+    clearLatestCreatedBank() {
+      localStorage.removeItem(STORAGE_KEYS.latestCreatedBank);
+    },
+
     setLatestResult(result) {
       writeJson(STORAGE_KEYS.latestResult, result);
     },
@@ -266,6 +270,30 @@
       return {
         shareCode,
         shareUrl: `${location.origin}${location.pathname.replace(/[^/]+$/, "")}answer.html?code=${shareCode}`
+      };
+    },
+
+    async getCurrentUserQuestionBank(userId) {
+      if (API_MODE !== "mock") {
+        const response = await this.manageQuestionBank({
+          action: "get",
+          userId,
+          shareCode: ""
+        });
+        return response.questionBank || null;
+      }
+
+      const questionBanks = getQuestionBanks();
+      const bank = questionBanks.find((item) => item.user_id === userId && item.status === "active");
+      if (!bank) return null;
+      return {
+        shareCode: bank.share_code,
+        shareUrl: `${location.origin}${location.pathname.replace(/[^/]+$/, "")}answer.html?code=${bank.share_code}`,
+        title: bank.title,
+        description: bank.description,
+        status: bank.status,
+        createTime: bank.create_time,
+        updateTime: bank.update_time
       };
     },
 

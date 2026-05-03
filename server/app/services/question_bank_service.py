@@ -56,6 +56,38 @@ def _ensure_user_exists(user_id: int):
         connection.close()
 
 
+def _share_payload(bank):
+    share_code = bank["share_code"]
+    return {
+        "shareCode": share_code,
+        "shareUrl": f"{settings.app_base_url}/answer.html?code={share_code}",
+        "title": bank["title"],
+        "description": bank["description"] or "",
+        "status": bank["status"],
+        "createTime": bank["create_time"],
+        "updateTime": bank["update_time"]
+    }
+
+
+def _get_user_active_bank(user_id: int):
+    connection = create_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT share_code, title, description, status, create_time, update_time
+                FROM question_banks
+                WHERE user_id = %s AND status = 'active'
+                ORDER BY create_time ASC
+                LIMIT 1
+                """,
+                (user_id,)
+            )
+            return cursor.fetchone()
+    finally:
+        connection.close()
+
+
 def _public_question(question):
     return {
         "id": question.get("id"),
@@ -68,6 +100,10 @@ def _public_question(question):
 
 def create_question_bank(payload):
     user = _ensure_user_exists(payload.userId)
+    existing_bank = _get_user_active_bank(payload.userId)
+    if existing_bank:
+        raise HTTPException(status_code=409, detail="你已经创建过题库，每个账号只能拥有一个分享码")
+
     validate_rank_rules(payload.rankRules)
     question_list = []
     total_score = 0
@@ -158,6 +194,11 @@ def manage_question_bank(payload):
 
     if payload.action == "list":
         return list_user_question_banks(payload.userId)
+
+    if payload.action == "get":
+        if not normalize_share_code(payload.shareCode):
+            active_bank = _get_user_active_bank(payload.userId)
+            return {"questionBank": _share_payload(active_bank) if active_bank else None}
 
     if payload.action == "records":
         return list_answer_records(payload.userId, payload.shareCode)

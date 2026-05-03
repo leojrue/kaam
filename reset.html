@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>重置测试状态 - KAAM</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main class="main">
+      <section class="result-panel created-bank-view">
+        <span class="eyebrow">测试重置</span>
+        <h1>正在重置浏览器状态</h1>
+        <p class="hint">即将返回首页。</p>
+      </section>
+    </main>
+    <script>
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("kaam."))
+        .forEach((key) => localStorage.removeItem(key));
+      sessionStorage.clear();
+      setTimeout(() => {
+        location.replace("index.html");
+      }, 500);
+    </script>
+  </body>
+</html>

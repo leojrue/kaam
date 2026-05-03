@@ -313,6 +313,7 @@ def list_answer_records(user_id: int, share_code: str = ""):
                 "bankTitle": row["bank_title"],
                 "answerName": row["answer_name"],
                 "deviceId": row.get("device_id", ""),
+                "answerUserKey": row.get("answer_user_key", ""),
                 "userAnswer": _load_json(row["user_answer"], []),
                 "score": row["score"],
                 "correctCount": row["correct_count"],

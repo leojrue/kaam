@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 
@@ -17,6 +18,11 @@ def _match_rank_name(score: int, total_score: int, rank_rule: dict) -> str:
         if int(rule.get("minPercent", 0)) <= percent <= int(rule.get("maxPercent", 100)):
             return rule.get("name", "未评级")
     return "未评级"
+
+
+def _build_answer_user_key(share_code: str, device_id: str) -> str:
+    raw_key = f"{normalize_share_code(share_code)}:{device_id.strip()}"
+    return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
 
 
 def submit_answer(payload):
@@ -51,6 +57,8 @@ def submit_answer(payload):
     rank_name = _match_rank_name(score, int(bank["total_score"]), bank["rank_rule"])
     submit_time = int(time.time() * 1000)
     normalized_code = normalize_share_code(payload.shareCode)
+    device_id = payload.deviceId.strip()
+    answer_user_key = _build_answer_user_key(normalized_code, device_id)
 
     connection = create_connection()
     try:
@@ -59,14 +67,15 @@ def submit_answer(payload):
                 cursor.execute(
                     """
                     INSERT INTO answer_records (
-                      share_code, answer_name, device_id, user_answer, score,
+                      share_code, answer_name, device_id, answer_user_key, user_answer, score,
                       correct_count, wrong_count, rank_name, submit_time
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         normalized_code,
                         payload.answerName.strip(),
-                        payload.deviceId.strip(),
+                        device_id,
+                        answer_user_key,
                         json.dumps(payload.userAnswer, ensure_ascii=False),
                         score,
                         correct_count,

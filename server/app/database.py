@@ -44,6 +44,7 @@ CREATE_TABLE_STATEMENTS = [
       share_code VARCHAR(16) NOT NULL,
       answer_name VARCHAR(50) NOT NULL,
       device_id VARCHAR(128) DEFAULT '',
+      answer_user_key CHAR(64) NOT NULL DEFAULT '',
       user_answer JSON NOT NULL,
       score INT NOT NULL DEFAULT 0,
       correct_count INT NOT NULL DEFAULT 0,
@@ -53,6 +54,7 @@ CREATE_TABLE_STATEMENTS = [
       PRIMARY KEY (id),
       KEY idx_share_code (share_code),
       KEY idx_submit_time (submit_time),
+      UNIQUE KEY uk_share_answer_user (share_code, answer_user_key),
       UNIQUE KEY uk_share_device (share_code, device_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     """,
@@ -74,6 +76,8 @@ MIGRATION_STATEMENTS = [
     "ALTER TABLE question_banks ADD COLUMN user_id BIGINT UNSIGNED NULL AFTER id",
     "ALTER TABLE question_banks ADD KEY idx_user_id (user_id)",
     "ALTER TABLE answer_records ADD COLUMN device_id VARCHAR(128) DEFAULT '' AFTER answer_name",
+    "ALTER TABLE answer_records ADD COLUMN answer_user_key CHAR(64) NOT NULL DEFAULT '' AFTER device_id",
+    "ALTER TABLE answer_records ADD UNIQUE KEY uk_share_answer_user (share_code, answer_user_key)",
     "ALTER TABLE answer_records ADD UNIQUE KEY uk_share_device (share_code, device_id)"
 ]
 

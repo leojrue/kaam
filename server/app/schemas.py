@@ -38,6 +38,11 @@ class SubmitAnswerRequest(BaseModel):
     userAnswer: list[str] = Field(min_length=1, max_length=100)
 
 
+class CheckAnswerAccessRequest(BaseModel):
+    shareCode: str = Field(min_length=4, max_length=16)
+    deviceId: str = Field(min_length=8, max_length=128)
+
+
 class ManageQuestionBankRequest(BaseModel):
     action: Literal["get", "delete", "update", "list", "records"]
     userId: int = Field(ge=1)

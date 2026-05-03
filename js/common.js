@@ -316,6 +316,23 @@
       };
     },
 
+    async checkAnswerAccess(payload) {
+      if (API_MODE !== "mock") {
+        return requestApi("/answers/check-access", {
+          method: HTTP_METHODS.post,
+          payload
+        });
+      }
+
+      const normalizedCode = normalizeShareCode(payload.shareCode);
+      const answerRecords = getAnswerRecords();
+      const hasAnswered = answerRecords.some((record) => (
+        record.share_code === normalizedCode && record.device_id === payload.deviceId
+      ));
+      if (hasAnswered) throw new Error("你已经答过这套题了");
+      return { canAnswer: true };
+    },
+
     async submitAnswer(payload) {
       if (API_MODE !== "mock") {
         const result = await requestApi("/answers/submit", {

@@ -25,6 +25,28 @@ def _build_answer_user_key(share_code: str, device_id: str) -> str:
     return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
 
 
+def ensure_answer_not_submitted(share_code: str, device_id: str):
+    normalized_code = normalize_share_code(share_code)
+    answer_user_key = _build_answer_user_key(normalized_code, device_id)
+    connection = create_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id FROM answer_records
+                WHERE share_code = %s AND answer_user_key = %s
+                LIMIT 1
+                """,
+                (normalized_code, answer_user_key)
+            )
+            if cursor.fetchone():
+                raise HTTPException(status_code=409, detail="你已经答过这套题了")
+    finally:
+        connection.close()
+
+    return {"canAnswer": True}
+
+
 def submit_answer(payload):
     bank = get_private_question_bank(payload.shareCode)
     question_list = bank["question_list"]

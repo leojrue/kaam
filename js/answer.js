@@ -52,6 +52,12 @@
 
   async function loadBankByCode(shareCode) {
     KaamTools.setStatus(answerStatusElement, "正在读取题库...", "");
+    if (answerActionsElement) answerActionsElement.hidden = true;
+    answerForm.hidden = true;
+    await KaamApi.checkAnswerAccess({
+      shareCode,
+      deviceId: KaamApi.getDeviceId()
+    });
     activeBank = await KaamApi.getQuestionBank(shareCode);
     renderQuestionList(activeBank);
     KaamTools.setStatus(answerStatusElement, "题库已加载。", "success");

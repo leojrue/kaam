@@ -88,6 +88,7 @@
       await KaamApi.submitAnswer({
         shareCode: activeBank.shareCode,
         answerName: answerNameInput.value,
+        deviceId: KaamApi.getDeviceId(),
         userAnswer
       });
       location.href = "result.html";

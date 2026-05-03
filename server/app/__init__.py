@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.database import initialize_database
-from app.routers import ai, answers, question_banks
+from app.routers import ai, answers, auth, question_banks
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -34,5 +34,6 @@ def health_check():
 app.include_router(question_banks.router)
 app.include_router(answers.router)
 app.include_router(ai.router)
+app.include_router(auth.router)
 
 app.mount("/", StaticFiles(directory=PROJECT_ROOT, html=True), name="frontend")

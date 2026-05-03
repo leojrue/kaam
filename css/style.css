@@ -94,6 +94,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
 }
 
@@ -627,6 +628,128 @@ button {
   padding: 24px 0 38px;
   color: var(--muted);
   text-align: center;
+}
+
+.auth-slot {
+  position: relative;
+}
+
+.login-button,
+.avatar-button {
+  display: inline-grid;
+  min-width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.login-button {
+  padding: 0 14px;
+}
+
+.avatar-button {
+  border-color: rgba(15, 115, 88, 0.24);
+  background: linear-gradient(135deg, var(--primary), #178366);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(15, 115, 88, 0.2);
+}
+
+.avatar-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  display: grid;
+  min-width: 150px;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.avatar-menu button {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(14, 24, 21, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.auth-modal[hidden] {
+  display: none;
+}
+
+.auth-panel {
+  position: relative;
+  display: grid;
+  width: min(420px, 100%);
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.auth-panel h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.auth-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.created-bank-view {
+  max-width: 620px;
+}
+
+.manage-list {
+  display: grid;
+  gap: 12px;
+}
+
+.manage-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.manage-item strong {
+  font-size: 18px;
+}
+
+.code-textarea {
+  min-height: 220px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 @media (max-width: 860px) {

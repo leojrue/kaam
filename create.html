@@ -6,7 +6,7 @@
     <title>创建题库 - KAAM</title>
     <link rel="stylesheet" href="css/style.css">
   </head>
-  <body>
+  <body data-requires-auth="true">
     <div class="app-shell">
       <header class="site-header">
         <nav class="site-nav" aria-label="主导航">
@@ -35,14 +35,6 @@
                 <h2>基础信息</h2>
               </div>
               <div class="form-grid">
-                <div class="field">
-                  <label for="creatorName">出题人昵称</label>
-                  <input id="creatorName" name="creatorName" maxlength="24" required>
-                </div>
-                <div class="field">
-                  <label for="creatorPassword">管理题库密码</label>
-                  <input id="creatorPassword" name="creatorPassword" type="password" minlength="4" required>
-                </div>
                 <div class="field full">
                   <label for="bankTitle">题库标题</label>
                   <input id="bankTitle" name="bankTitle" maxlength="60" required placeholder="比如：你真的了解我吗">
@@ -96,12 +88,24 @@
               <div id="shareBox" class="share-box">
                 <div class="meta">分享码</div>
                 <div id="shareCode" class="share-code"></div>
-                <a id="shareLink" class="button secondary" href="answer.html">打开答题链接</a>
                 <button id="copyShareButton" class="button" type="button">复制答题链接</button>
               </div>
             </section>
           </aside>
         </form>
+        <section id="createdBankView" class="result-panel created-bank-view" hidden>
+          <span class="eyebrow">分享已就绪</span>
+          <h2>题库创建成功</h2>
+          <p class="hint">这套题库已经和你的账号绑定。复制答题链接发给他人即可，出题人无需自己作答。</p>
+          <div class="share-box active">
+            <div class="meta">分享码</div>
+            <div id="createdShareCode" class="share-code"></div>
+            <button id="copyCreatedShareButton" class="button" type="button">复制答题链接</button>
+          </div>
+          <div class="actions">
+            <a class="button secondary" href="manage.html">去管理题库</a>
+          </div>
+        </section>
       </main>
     </div>
 

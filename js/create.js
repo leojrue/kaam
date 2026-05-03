@@ -5,8 +5,10 @@
   const createStatusElement = document.querySelector("#createStatus");
   const shareBoxElement = document.querySelector("#shareBox");
   const shareCodeElement = document.querySelector("#shareCode");
-  const shareLinkElement = document.querySelector("#shareLink");
   const copyShareButton = document.querySelector("#copyShareButton");
+  const createdBankView = document.querySelector("#createdBankView");
+  const createdShareCode = document.querySelector("#createdShareCode");
+  const copyCreatedShareButton = document.querySelector("#copyCreatedShareButton");
   const addQuestionButton = document.querySelector("#addQuestionButton");
   const addRankRuleButton = document.querySelector("#addRankRuleButton");
   const generateAiButton = document.querySelector("#generateAiButton");
@@ -16,6 +18,13 @@
   let questionList = [];
   let rankRules = KaamApi.defaultRankRules.map((rule) => ({ ...rule }));
   let lastShareUrl = "";
+
+  function showCreatedBankView(bank) {
+    lastShareUrl = bank.shareUrl;
+    questionBankForm.hidden = true;
+    createdBankView.hidden = false;
+    createdShareCode.textContent = bank.shareCode;
+  }
 
   function createEmptyQuestion() {
     return {
@@ -183,13 +192,15 @@
 
   questionBankForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const user = KaamApi.requireLogin();
+    if (!user) return;
     const formData = KaamTools.serializeForm(questionBankForm);
     KaamTools.setStatus(createStatusElement, "正在保存题库...", "");
 
     try {
       const response = await KaamApi.createQuestionBank({
-        creatorName: formData.creatorName,
-        creatorPassword: formData.creatorPassword,
+        userId: user.userId,
+        creatorName: user.account,
         title: formData.bankTitle,
         description: formData.bankDescription,
         questionList,
@@ -199,9 +210,10 @@
 
       lastShareUrl = response.shareUrl;
       shareCodeElement.textContent = response.shareCode;
-      shareLinkElement.href = response.shareUrl;
       shareBoxElement.classList.add("active");
+      KaamApi.setLatestCreatedBank(response);
       KaamTools.setStatus(createStatusElement, "题库创建成功。", "success");
+      showCreatedBankView(response);
     } catch (error) {
       KaamTools.setStatus(createStatusElement, error.message, "error");
     }
@@ -212,6 +224,25 @@
     await KaamTools.copyText(lastShareUrl);
     KaamTools.setStatus(createStatusElement, "分享链接已复制。", "success");
   });
+
+  copyCreatedShareButton.addEventListener("click", async () => {
+    if (!lastShareUrl) return;
+    await KaamTools.copyText(lastShareUrl);
+  });
+
+  const currentUser = KaamApi.requireLogin();
+  const latestCreatedBank = KaamApi.getLatestCreatedBank();
+  if (!currentUser) {
+    questionBankForm.hidden = true;
+  }
+  window.addEventListener("kaam:user-change", (event) => {
+    if (event.detail) {
+      questionBankForm.hidden = false;
+    }
+  });
+  if (currentUser && latestCreatedBank) {
+    showCreatedBankView(latestCreatedBank);
+  }
 
   questionList.push(createEmptyQuestion());
   renderQuestions();

@@ -2,7 +2,10 @@
   const STORAGE_KEYS = {
     questionBanks: "kaam.questionBanks",
     answerRecords: "kaam.answerRecords",
-    latestResult: "kaam.latestResult"
+    latestResult: "kaam.latestResult",
+    currentUser: "kaam.currentUser",
+    deviceId: "kaam.deviceId",
+    latestCreatedBank: "kaam.latestCreatedBank"
   };
 
   const API_MODE = "remote";
@@ -116,7 +119,7 @@
     }
 
     if (!response.ok || responseBody?.success === false) {
-      const message = responseBody?.message || responseBody?.error || "服务请求失败";
+      const message = responseBody?.message || responseBody?.error || responseBody?.detail || "服务请求失败";
       throw new Error(message);
     }
 
@@ -128,6 +131,64 @@
   const KaamApi = {
     apiBaseUrl: API_BASE_URL,
     defaultRankRules,
+
+    getCurrentUser() {
+      return readJson(STORAGE_KEYS.currentUser, null);
+    },
+
+    setCurrentUser(user) {
+      writeJson(STORAGE_KEYS.currentUser, user);
+      window.dispatchEvent(new CustomEvent("kaam:user-change", { detail: user }));
+    },
+
+    logout() {
+      localStorage.removeItem(STORAGE_KEYS.currentUser);
+      window.dispatchEvent(new CustomEvent("kaam:user-change", { detail: null }));
+    },
+
+    requireLogin() {
+      const user = this.getCurrentUser();
+      if (!user) {
+        window.dispatchEvent(new CustomEvent("kaam:open-login"));
+        return null;
+      }
+      return user;
+    },
+
+    getDeviceId() {
+      let deviceId = localStorage.getItem(STORAGE_KEYS.deviceId);
+      if (!deviceId) {
+        deviceId = `device_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(STORAGE_KEYS.deviceId, deviceId);
+      }
+      return deviceId;
+    },
+
+    getLatestCreatedBank() {
+      return readJson(STORAGE_KEYS.latestCreatedBank, null);
+    },
+
+    setLatestCreatedBank(bank) {
+      writeJson(STORAGE_KEYS.latestCreatedBank, bank);
+    },
+
+    async login(payload) {
+      const user = await requestApi("/auth/login", {
+        method: HTTP_METHODS.post,
+        payload
+      });
+      this.setCurrentUser(user);
+      return user;
+    },
+
+    async register(payload) {
+      const user = await requestApi("/auth/register", {
+        method: HTTP_METHODS.post,
+        payload
+      });
+      this.setCurrentUser(user);
+      return user;
+    },
 
     async createQuestionBank(payload) {
       if (API_MODE !== "mock") {
@@ -344,4 +405,132 @@
   };
 
   window.KaamApi = KaamApi;
+
+  function createAuthModal() {
+    if (document.querySelector("#authModal")) return;
+    const modal = document.createElement("div");
+    modal.id = "authModal";
+    modal.className = "auth-modal";
+    modal.hidden = true;
+    modal.innerHTML = `
+      <div class="auth-panel">
+        <button class="icon-button auth-close" type="button" aria-label="关闭">×</button>
+        <span class="eyebrow">账号登录</span>
+        <h2 id="authTitle">登录 KAAM</h2>
+        <p class="hint">登录后即可创建题库、管理题库和查看答题记录。</p>
+        <form id="authForm" class="stack">
+          <div class="field">
+            <label for="authAccount">账号</label>
+            <input id="authAccount" name="account" maxlength="50" required autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="authPassword">密码</label>
+            <input id="authPassword" name="password" type="password" minlength="4" maxlength="64" required autocomplete="current-password">
+          </div>
+          <button id="authSubmitButton" class="button" type="submit">登录</button>
+        </form>
+        <button id="authSwitchButton" class="button ghost" type="button">没有账号？注册一个</button>
+        <div id="authStatus" class="status" role="status"></div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    let authMode = "login";
+    const authForm = modal.querySelector("#authForm");
+    const authTitle = modal.querySelector("#authTitle");
+    const authSubmitButton = modal.querySelector("#authSubmitButton");
+    const authSwitchButton = modal.querySelector("#authSwitchButton");
+    const authStatus = modal.querySelector("#authStatus");
+
+    function setAuthMode(nextMode) {
+      authMode = nextMode;
+      authTitle.textContent = authMode === "login" ? "登录 KAAM" : "注册账号";
+      authSubmitButton.textContent = authMode === "login" ? "登录" : "注册并登录";
+      authSwitchButton.textContent = authMode === "login" ? "没有账号？注册一个" : "已有账号？去登录";
+      authStatus.textContent = "";
+      authStatus.className = "status";
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+    }
+
+    modal.querySelector(".auth-close").addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
+    });
+    authSwitchButton.addEventListener("click", () => setAuthMode(authMode === "login" ? "register" : "login"));
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(authForm).entries());
+      authStatus.textContent = authMode === "login" ? "正在登录..." : "正在注册...";
+      authStatus.className = "status";
+      try {
+        if (authMode === "login") {
+          await KaamApi.login(payload);
+        } else {
+          await KaamApi.register(payload);
+        }
+        authStatus.textContent = "登录成功";
+        authStatus.className = "status success";
+        closeModal();
+      } catch (error) {
+        authStatus.textContent = error.message;
+        authStatus.className = "status error";
+      }
+    });
+
+    window.addEventListener("kaam:open-login", () => {
+      setAuthMode("login");
+      modal.hidden = false;
+      setTimeout(() => modal.querySelector("#authAccount").focus(), 0);
+    });
+  }
+
+  function renderAuthButton() {
+    const nav = document.querySelector(".nav-links");
+    if (!nav) return;
+    let authSlot = document.querySelector("#authSlot");
+    if (!authSlot) {
+      authSlot = document.createElement("div");
+      authSlot.id = "authSlot";
+      authSlot.className = "auth-slot";
+      nav.prepend(authSlot);
+    }
+    const user = KaamApi.getCurrentUser();
+    if (!user) {
+      authSlot.innerHTML = `<button class="login-button" type="button">登录</button>`;
+      authSlot.querySelector("button").addEventListener("click", () => window.dispatchEvent(new CustomEvent("kaam:open-login")));
+      return;
+    }
+    authSlot.innerHTML = `
+      <button class="avatar-button" type="button" title="${user.account}">${user.avatarText || user.account.slice(0, 1).toUpperCase()}</button>
+      <div class="avatar-menu" hidden>
+        <strong>${user.account}</strong>
+        <button type="button">退出登录</button>
+      </div>
+    `;
+    const avatarButton = authSlot.querySelector(".avatar-button");
+    const menu = authSlot.querySelector(".avatar-menu");
+    avatarButton.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      menu.hidden = !menu.hidden;
+    });
+    avatarButton.addEventListener("click", () => {
+      menu.hidden = !menu.hidden;
+    });
+    menu.querySelector("button").addEventListener("click", () => {
+      KaamApi.logout();
+      menu.hidden = true;
+      if (document.body.dataset.requiresAuth === "true") {
+        location.href = "index.html";
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    createAuthModal();
+    renderAuthButton();
+    window.addEventListener("kaam:user-change", renderAuthButton);
+  });
 })();

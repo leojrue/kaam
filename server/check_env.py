@@ -33,7 +33,7 @@ PYTHON_PACKAGES = [
     ("python-dotenv", "dotenv"),
     ("httpx", "httpx"),
 ]
-MYSQL_TABLES = ["question_banks", "answer_records", "ai_limits"]
+MYSQL_TABLES = ["users", "question_banks", "answer_records", "ai_limits"]
 
 
 def print_result(ok, label, detail=""):

@@ -2,6 +2,7 @@ import json
 import time
 
 from fastapi import HTTPException
+from pymysql.err import IntegrityError
 
 from app.database import create_connection
 from app.services.question_bank_service import get_private_question_bank
@@ -54,25 +55,30 @@ def submit_answer(payload):
     connection = create_connection()
     try:
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO answer_records (
-                  share_code, answer_name, user_answer, score,
-                  correct_count, wrong_count, rank_name, submit_time
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    normalized_code,
-                    payload.answerName.strip(),
-                    json.dumps(payload.userAnswer, ensure_ascii=False),
-                    score,
-                    correct_count,
-                    wrong_count,
-                    rank_name,
-                    submit_time
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO answer_records (
+                      share_code, answer_name, device_id, user_answer, score,
+                      correct_count, wrong_count, rank_name, submit_time
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        normalized_code,
+                        payload.answerName.strip(),
+                        payload.deviceId.strip(),
+                        json.dumps(payload.userAnswer, ensure_ascii=False),
+                        score,
+                        correct_count,
+                        wrong_count,
+                        rank_name,
+                        submit_time
+                    )
                 )
-            )
-        connection.commit()
+                connection.commit()
+            except IntegrityError:
+                connection.rollback()
+                raise HTTPException(status_code=409, detail="你已经答过这套题了")
     finally:
         connection.close()
 

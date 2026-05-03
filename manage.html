@@ -6,7 +6,7 @@
     <title>题库管理 - KAAM</title>
     <link rel="stylesheet" href="css/style.css">
   </head>
-  <body>
+  <body data-requires-auth="true">
     <div class="app-shell">
       <header class="site-header">
         <nav class="site-nav" aria-label="主导航">
@@ -25,28 +25,25 @@
         <section class="page-title">
           <span class="eyebrow">题库控制台</span>
           <h1>题库管理</h1>
-          <p>使用分享码和管理题库密码查看题库状态，或在需要时停止继续答题。</p>
+          <p>查看你创建的题库，编辑题目内容，并查看所有答题人的详细记录。</p>
         </section>
 
         <section class="card">
-          <form id="manageForm" class="form-grid">
-            <div class="field">
-              <label for="manageShareCode">分享码</label>
-              <input id="manageShareCode" name="shareCode" maxlength="12" required>
-            </div>
-            <div class="field">
-              <label for="managePassword">管理题库密码</label>
-              <input id="managePassword" name="creatorPassword" type="password" required>
-            </div>
-            <div class="field full actions">
-              <button class="button" type="submit">查看题库</button>
-              <button id="deleteBankButton" class="button danger" type="button">删除题库</button>
-            </div>
-          </form>
+          <div class="card-header">
+            <h2>我的题库</h2>
+            <button id="refreshManageButton" class="button secondary" type="button">刷新</button>
+          </div>
           <div id="manageStatus" class="status" role="status"></div>
+          <div id="bankList" class="manage-list"></div>
         </section>
 
-        <section id="manageResult" class="card" hidden></section>
+        <section class="card">
+          <div class="card-header">
+            <h2>答题记录</h2>
+            <span id="recordScope" class="pill">全部题库</span>
+          </div>
+          <div id="recordList" class="manage-list"></div>
+        </section>
       </main>
     </div>
 

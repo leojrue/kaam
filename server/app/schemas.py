@@ -22,8 +22,8 @@ class RankRuleItem(BaseModel):
 
 
 class CreateQuestionBankRequest(BaseModel):
-    creatorName: str = Field(min_length=1, max_length=24)
-    creatorPassword: str = Field(min_length=4, max_length=64)
+    userId: int = Field(ge=1)
+    creatorName: str = Field(default="", max_length=24)
     title: str = Field(min_length=1, max_length=60)
     description: str = Field(default="", max_length=240)
     questionList: list[QuestionItem] = Field(min_length=1, max_length=100)
@@ -34,13 +34,23 @@ class CreateQuestionBankRequest(BaseModel):
 class SubmitAnswerRequest(BaseModel):
     shareCode: str = Field(min_length=4, max_length=16)
     answerName: str = Field(min_length=1, max_length=24)
+    deviceId: str = Field(min_length=8, max_length=128)
     userAnswer: list[str] = Field(min_length=1, max_length=100)
 
 
 class ManageQuestionBankRequest(BaseModel):
-    action: Literal["get", "delete", "update"]
-    shareCode: str = Field(min_length=4, max_length=16)
-    creatorPassword: str = Field(min_length=4, max_length=64)
+    action: Literal["get", "delete", "update", "list", "records"]
+    userId: int = Field(ge=1)
+    shareCode: str = Field(default="", max_length=16)
+    title: str | None = Field(default=None, max_length=60)
+    description: str | None = Field(default=None, max_length=240)
+    questionList: list[QuestionItem] | None = None
+    rankRules: list[RankRuleItem] | None = None
+
+
+class AuthRequest(BaseModel):
+    account: str = Field(min_length=2, max_length=50)
+    password: str = Field(min_length=4, max_length=64)
 
 
 class AiGenerateRequest(BaseModel):

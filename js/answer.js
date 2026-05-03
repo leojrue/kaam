@@ -19,7 +19,6 @@
     bankDescriptionElement.textContent = bank.description || "暂无题库描述";
     questionProgressElement.textContent = `${bank.questionList.length} 题 / ${bank.totalScore} 分`;
     answerQuestionListElement.innerHTML = "";
-    answerActionsElement.innerHTML = "";
 
     bank.questionList.forEach((question, index) => {
       const card = KaamTools.createElement("article", "question-card");
@@ -45,9 +44,7 @@
     });
 
     answerForm.hidden = false;
-    const submitButton = KaamTools.createElement("button", "button", "提交答案");
-    submitButton.type = "submit";
-    answerActionsElement.appendChild(submitButton);
+    if (answerActionsElement) answerActionsElement.hidden = false;
     if (enterAnswerSection) {
       enterAnswerSection.hidden = true;
     }
@@ -66,6 +63,7 @@
       await loadBankByCode(shareCodeInput.value);
     } catch (error) {
       answerForm.hidden = true;
+      if (answerActionsElement) answerActionsElement.hidden = true;
       KaamTools.setStatus(answerStatusElement, error.message, "error");
     }
   });
@@ -85,13 +83,14 @@
     }
 
     try {
-      await KaamApi.submitAnswer({
+      const result = await KaamApi.submitAnswer({
         shareCode: activeBank.shareCode,
         answerName: answerNameInput.value,
         deviceId: KaamApi.getDeviceId(),
         userAnswer
       });
-      location.href = "result.html";
+      KaamApi.setLatestResult(result);
+      location.replace("result.html");
     } catch (error) {
       KaamTools.setStatus(answerStatusElement, error.message, "error");
     }
@@ -102,6 +101,7 @@
     shareCodeInput.value = KaamApi.normalizeShareCode(initialShareCode);
     loadBankByCode(initialShareCode).catch((error) => {
       answerForm.hidden = true;
+      if (answerActionsElement) answerActionsElement.hidden = true;
       if (enterAnswerSection) {
         enterAnswerSection.hidden = false;
       }

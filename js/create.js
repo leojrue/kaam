@@ -21,9 +21,11 @@
 
   function showCreatedBankView(bank) {
     lastShareUrl = bank.shareUrl;
+    document.body.classList.add("create-share-mode");
     questionBankForm.hidden = true;
     createdBankView.hidden = false;
     createdShareCode.textContent = bank.shareCode;
+    createdBankView.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function createEmptyQuestion() {

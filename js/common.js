@@ -183,6 +183,10 @@
       writeJson(STORAGE_KEYS.latestCreatedBank, bank);
     },
 
+    setLatestResult(result) {
+      writeJson(STORAGE_KEYS.latestResult, result);
+    },
+
     async login(payload) {
       const user = await requestApi("/auth/login", {
         method: HTTP_METHODS.post,

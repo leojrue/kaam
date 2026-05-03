@@ -21,6 +21,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background:
@@ -414,6 +418,33 @@ button {
   margin-top: 16px;
 }
 
+.answer-submit-bar {
+  display: flex;
+  position: fixed;
+  right: max(16px, calc((100vw - 1120px) / 2 + 16px));
+  bottom: 18px;
+  left: max(16px, calc((100vw - 1120px) / 2 + 16px));
+  z-index: 30;
+  justify-content: center;
+  margin-top: 0;
+  padding: 14px;
+  border: 1px solid rgba(20, 107, 82, 0.16);
+  border-radius: 8px;
+  background: rgba(248, 250, 248, 0.9);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.answer-submit-bar .button {
+  width: min(360px, 100%);
+  min-height: 50px;
+  font-size: 18px;
+}
+
+body:has(.answer-submit-bar:not([hidden])) .main {
+  padding-bottom: 124px;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -727,7 +758,22 @@ button {
 }
 
 .created-bank-view {
-  max-width: 620px;
+  width: min(620px, 100%);
+  margin: 40px auto 0;
+  text-align: center;
+}
+
+.created-bank-view .eyebrow,
+.created-bank-view .actions {
+  justify-self: center;
+}
+
+.created-bank-view .share-box {
+  text-align: left;
+}
+
+.created-bank-view .share-box .button {
+  width: 100%;
 }
 
 .manage-list {
